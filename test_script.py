@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scipy.optimize as op
 
+name = 'defg'
+
 sfs = AD.get_scale_factors()
 zs = 1./sfs - 1.
 x = sfs - 0.5
@@ -15,6 +17,8 @@ def model_swap(params, name, xi):
     slopes = params[1::2]
     pars = ints + xi*slopes
     d, e, f, g = 1.97, 1.0, 0.51, 1.228
+    if name == 'defg':
+        d, e, f, g = pars
     if name == 'dfg':
         d, f, g = pars
     return d, e, f, g
@@ -87,25 +91,28 @@ def run_bf(i):
         p = np.array([cosmo.pk_lin(ki, zs[j]) for ki in k])*h**3
         ps.append(p)
         
-    args = {'x':x, 'k':k/h, 'ps':ps, 'edges':edges, 'Ns':Ns, 'icovs':icovs, 'Omega_m':Omega_m, 'h':h, 'M':M, 'name':'dfg'}
+    args = {'x':x, 'k':k/h, 'ps':ps, 'edges':edges, 'Ns':Ns, 'icovs':icovs, 'Omega_m':Omega_m, 'h':h, 'M':M, 'name':name}
 
     #guess = np.array([ 0.98523686,  0.38452346,  0.88047635, -0.03644077,  1.13972382, -0.29261036])
-    guess = np.array([2.13, 0.11, 0.41, 0.15, 1.25, 0.11])
+    if name =='defg':
+        #guess = np.array([2.13, 0.11, 1.1, 0.2, 0.41, 0.15, 1.25, 0.11])
+        guess = np.array([2.347, 0.062, 1.040, 0.354, 0.451, 0.087, 1.288, 0.198])
+    if name == 'dfg': guess = np.array([2.13, 0.11, 0.41, 0.15, 1.25, 0.11])
     print "Test lnprob call box%d: "%i, lnprob(guess, args)
     
     nll = lambda *args:-lnprob(*args)
-    #result = op.minimize(nll, guess, args=args, tol=1e-3)
-    #bfpath = "bf_%s_box%d.txt"%(args['name'], i)
-    #print result.x
-    #np.savetxt(bfpath, result.x)
-    #print "BF saved at: ",bfpath
+    result = op.minimize(nll, guess, args=args, tol=1e-3)
+    bfpath = "bf_%s_box%d.txt"%(args['name'], i)
+    print result
+    np.savetxt(bfpath, result.x)
+    print "BF saved at: ",bfpath
 
 def plot_bf(i):
     cosmo, h, Omega_m = get_cosmo(i)
     M = np.logspace(12, 16, num=200) #Msun/h
     k = np.logspace(-5, 1, num=1000) #Mpc^-1
-    name = 'dfg'
     bfpath = "bf_%s_box%d.txt"%(name, i)
+    print i, name
     params = np.loadtxt(bfpath)
     LL = 0
     colors = [plt.get_cmap("seismic")(ci) for ci in np.linspace(1.0, 0.0, len(x))]
@@ -137,7 +144,26 @@ def plot_bf(i):
     plt.subplots_adjust(hspace=0)
     plt.show()
 
+def plotpars():
+    pars = []
+    for i in range(0, 26):
+        bfpath = "bf_%s_box%d.txt"%(name, i)
+        pars.append(np.loadtxt(bfpath))
+    pars = np.array(pars)
+    print pars.shape
+    labs = ['d0','d1','e0','e1','f0','f1','g0','g1']
+    for i in range(len(pars[0])):
+        plt.plot(pars[:,i], label=labs[i])
+    means = np.mean(pars, 0)
+    print means
+    #for m in means:
+    #    print "%.3f, "%m
+    plt.legend(frameon=False)
+    plt.show()
+    
 if __name__ == "__main__":
-    #run_bf(0)
-    for i in xrange(2,3): #2 and 3 are really bad
-        plot_bf(i)
+    #for i in xrange(26, 40):
+    #    run_bf(i)
+    #for i in xrange(0,26):
+    #    plot_bf(i)
+    plotpars()
