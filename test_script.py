@@ -139,5 +139,5 @@ def plot_bf(i):
 
 if __name__ == "__main__":
     #run_bf(0)
-    for i in range(0,10):
+    for i in xrange(2,3): #2 and 3 are really bad
         plot_bf(i)
