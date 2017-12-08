@@ -4,6 +4,7 @@ from cluster_toolkit import massfunction
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.optimize as op
+import emcee
 
 name = 'defg'
 
@@ -70,8 +71,8 @@ def get_cosmo(i):
     cosmo.set(params)
     cosmo.compute()
     return cosmo, h, Omega_m
-    
-def run_bf(i):
+
+def get_args(i):
     Ns = []
     edges = []
     icovs = []
@@ -90,14 +91,14 @@ def run_bf(i):
         #Calculate each power spectrum at this redshift
         p = np.array([cosmo.pk_lin(ki, zs[j]) for ki in k])*h**3
         ps.append(p)
-        
-    args = {'x':x, 'k':k/h, 'ps':ps, 'edges':edges, 'Ns':Ns, 'icovs':icovs, 'Omega_m':Omega_m, 'h':h, 'M':M, 'name':name}
+    return {'x':x, 'k':k/h, 'ps':ps, 'edges':edges, 'Ns':Ns, 'icovs':icovs, 'Omega_m':Omega_m, 'h':h, 'M':M, 'name':name}
 
-    #guess = np.array([ 0.98523686,  0.38452346,  0.88047635, -0.03644077,  1.13972382, -0.29261036])
+    
+def run_bf(i):
+    args = get_args(i)
     if name =='defg':
-        #guess = np.array([2.13, 0.11, 1.1, 0.2, 0.41, 0.15, 1.25, 0.11])
-        guess = np.array([2.347, 0.062, 1.040, 0.354, 0.451, 0.087, 1.288, 0.198])
-    if name == 'dfg': guess = np.array([2.13, 0.11, 0.41, 0.15, 1.25, 0.11])
+        guess = np.array([2.347, 0.062, 1.040, 0.354, 0.451, 0.087, 1.288, 0.198]) #defg
+    if name == 'dfg': guess = np.array([2.13, 0.11, 0.41, 0.15, 1.25, 0.11]) #dfg
     print "Test lnprob call box%d: "%i, lnprob(guess, args)
     
     nll = lambda *args:-lnprob(*args)
@@ -106,6 +107,27 @@ def run_bf(i):
     print result
     np.savetxt(bfpath, result.x)
     print "BF saved at: ",bfpath
+
+def run_mcmc(i):
+    args = get_args(i)
+    bfpath = "bf_%s_box%d.txt"%(args['name'], i)
+    mcmcpath = "chains/chain2_%s_box%d.txt"%(args['name'], i)
+    likespath = "chains/likes2_%s_box%d.txt"%(args['name'], i)
+    bf = np.loadtxt(bfpath)
+    print bf
+    ndim = len(bf)
+    nwalkers = 32
+    nsteps = 1000
+    pos = [bf + 1e-2*np.random.randn(ndim) for k in range(nwalkers)]
+    sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, args=(args,), threads=2)
+    print "Running MCMC on box%d for %s"%(i, args['name'])
+    sampler.run_mcmc(pos, nsteps)
+    print "Saving at %s"%mcmcpath
+    chain = sampler.flatchain
+    np.savetxt(mcmcpath, chain)
+    likes = sampler.flatlnprobability
+    np.savetxt(likespath, likes)
+    return
 
 def plot_bf(i):
     cosmo, h, Omega_m = get_cosmo(i)
@@ -142,6 +164,7 @@ def plot_bf(i):
     ax[1].set_ylim(-pdylim, pdylim) 
     #plt.title(LL)
     plt.subplots_adjust(hspace=0)
+    axarr[a].set_xlabel("Mass")
     plt.show()
 
 def plotpars():
@@ -162,8 +185,9 @@ def plotpars():
     plt.show()
     
 if __name__ == "__main__":
-    #for i in xrange(26, 40):
-    #    run_bf(i)
-    #for i in xrange(0,26):
-    #    plot_bf(i)
-    plotpars()
+    #for i in xrange(0,1):
+        #run_bf(i)
+        #run_mcmc(i)
+    for i in xrange(1,2):
+        plot_bf(i)
+    #plotpars()
