@@ -164,7 +164,7 @@ def plot_bf(i):
     ax[1].set_ylim(-pdylim, pdylim) 
     #plt.title(LL)
     plt.subplots_adjust(hspace=0)
-    axarr[a].set_xlabel("Mass")
+    ax[1].set_xlabel("Mass")
     plt.show()
 
 def plotpars():
