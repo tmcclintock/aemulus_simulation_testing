@@ -160,7 +160,7 @@ def plot_bf(i, args, bfpath):
     plt.show()
     
 if __name__ == "__main__":
-    lo = 8
+    lo = 31
     hi = 40
     for i in xrange(lo, hi):
         args = get_args(i)
