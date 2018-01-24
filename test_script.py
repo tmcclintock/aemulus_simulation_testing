@@ -7,32 +7,42 @@ import numpy as np
 import scipy.optimize as op
 import emcee
 
-name = 'efg'
-
+name = 'de0fg'
+if '0' in name or '1' in name:
+    symmetric = False
+else:
+    symmetric = True #A symmetric model, with both slopes and intercepts
 sfs = AD.scale_factors()
 zs = 1./sfs - 1.
 x = sfs - 0.5
 volume = 1050.**3 #(Mpc/h)^3
 
 def model_swap(params, name, xi):
-    ints = params[::2]
-    slopes = params[1::2]
-    pars = ints + xi*slopes
     d, e, f, g = 1.97, 1.0, 0.51, 1.228
-    if name == 'defg':
-        d, e, f, g = pars
-    if name == 'dfg':
-        d, f, g = pars
-    if name == 'efg':
-        e, f, g = pars
+    if symmetric:
+        ints = params[::2]
+        slopes = params[1::2]
+        pars = ints + xi*slopes
+        if name == 'defg':
+            d, e, f, g = pars
+        if name == 'dfg':
+            d, f, g = pars
+        if name == 'efg':
+            e, f, g = pars
+    if name == 'def0g':
+        d0,d1,e0,e1,f0,g0,g1 = params
+        d, e, g = d0+xi*d1, e0+xi*e1, g0+xi*g1
+        f = f0+xi*0.092
+    if name == 'de0fg':
+        d0,d1,e0,f0,f1,g0,g1 = params
+        d, f, g = d0+xi*d1, f0+xi*f1, g0+xi*g1
+        e = e0+xi*0.3098
     return d, e, f, g
     
 def lnprior(params, args):
     x = args['x']
-    ints = params[::2]
-    slopes = params[1::2]
     for xi in x:
-        pars = ints + xi*slopes
+        pars = np.array(model_swap(params, args['name'], xi))
         if any(pars < 0) or any(pars > 5):
             return -np.inf
     return 0
@@ -102,7 +112,11 @@ def get_args(i):
     
 def run_bf(args, bfpath):
     if name =='defg':
-        guess = np.array([2.347, 0.062, 1.040, 0.354, 0.451, 0.087, 1.288, 0.198]) #defg
+        guess = np.array([2.287, 0.039, 1.11, 0.31, 0.44, 0.092, 1.27, 0.162]) #defg
+    if name == 'de0fg':
+        guess = np.array([2.287, 0.039, 1.11, 0.44, 0.092, 1.27, 0.162]) #defg, e1 is off
+    if name == 'def0g':
+        guess = np.array([2.287, 0.039, 1.11, 0.31, 0.44, 1.27, 0.162]) #def0g, f1 is off
     if name == 'dfg':
         guess = np.array([2.13, 0.11, 0.41, 0.15, 1.25, 0.11]) #dfg
     if name == 'efg':
@@ -166,12 +180,12 @@ def plot_bf(i, args, bfpath):
     
 if __name__ == "__main__":
     lo = 0
-    hi = 40
+    hi = 1
     for i in xrange(lo, hi):
         args = get_args(i)
         bfpath = "bfs/bf_%s_box%d.txt"%(args['name'], i)
         mcmcpath = "chains/chain2_%s_box%d.txt"%(args['name'], i)
         likespath = "chains/likes2_%s_box%d.txt"%(args['name'], i)
-        run_bf(args, bfpath)
-        #plot_bf(i, args, bfpath)
-        run_mcmc(args, bfpath, mcmcpath, likespath)
+        #run_bf(args, bfpath)
+        plot_bf(i, args, bfpath)
+        #run_mcmc(args, bfpath, mcmcpath, likespath)
