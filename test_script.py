@@ -7,7 +7,7 @@ import numpy as np
 import scipy.optimize as op
 import emcee
 
-name = 'defg'
+name = 'efg'
 
 sfs = AD.scale_factors()
 zs = 1./sfs - 1.
@@ -23,6 +23,8 @@ def model_swap(params, name, xi):
         d, e, f, g = pars
     if name == 'dfg':
         d, f, g = pars
+    if name == 'efg':
+        e, f, g = pars
     return d, e, f, g
     
 def lnprior(params, args):
@@ -103,6 +105,9 @@ def run_bf(args, bfpath):
         guess = np.array([2.347, 0.062, 1.040, 0.354, 0.451, 0.087, 1.288, 0.198]) #defg
     if name == 'dfg':
         guess = np.array([2.13, 0.11, 0.41, 0.15, 1.25, 0.11]) #dfg
+    if name == 'efg':
+        guess = np.array([1.040, 0.354, 0.451, 0.087, 1.288, 0.198]) #efg
+
     print "Test lnprob() on box%d: \n\t%.3f"%(i, lnprob(guess, args))
 
     nll = lambda *args:-lnprob(*args)
@@ -160,7 +165,7 @@ def plot_bf(i, args, bfpath):
     plt.show()
     
 if __name__ == "__main__":
-    lo = 31
+    lo = 0
     hi = 40
     for i in xrange(lo, hi):
         args = get_args(i)
