@@ -7,7 +7,7 @@ import numpy as np
 import scipy.optimize as op
 import emcee
 
-name = 'de0fg'
+name = 'de1fg'
 if '0' in name or '1' in name:
     symmetric = False
 else:
@@ -37,6 +37,14 @@ def model_swap(params, name, xi):
         d0,d1,e0,f0,f1,g0,g1 = params
         d, f, g = d0+xi*d1, f0+xi*f1, g0+xi*g1
         e = e0+xi*0.3098
+    if name == 'def1g':
+        d0,d1,e0,e1,f1,g0,g1 = params
+        d, e, g = d0+xi*d1, e0+xi*e1, g0+xi*g1
+        f = 0.4384+xi*f1
+    if name == 'de1fg':
+        d0,d1,e1,f0,f1,g0,g1 = params
+        d, f, g = d0+xi*d1, f0+xi*f1, g0+xi*g1
+        e = 1.11+xi*e1
     return d, e, f, g
     
 def lnprior(params, args):
@@ -114,9 +122,13 @@ def run_bf(args, bfpath):
     if name =='defg':
         guess = np.array([2.287, 0.039, 1.11, 0.31, 0.44, 0.092, 1.27, 0.162]) #defg
     if name == 'de0fg':
-        guess = np.array([2.287, 0.039, 1.11, 0.44, 0.092, 1.27, 0.162]) #defg, e1 is off
+        guess = np.array([2.287, 0.039, 1.11, 0.44, 0.092, 1.27, 0.162]) #de0fg, e1 is off
     if name == 'def0g':
         guess = np.array([2.287, 0.039, 1.11, 0.31, 0.44, 1.27, 0.162]) #def0g, f1 is off
+    if name =='de1fg':
+        guess = np.array([2.287, 0.039, 0.31, 0.44, 0.092, 1.27, 0.162]) #de1fg, e0 is off
+    if name =='def1g':
+        guess = np.array([2.287, 0.039, 1.11, 0.31, 0.092, 1.27, 0.162]) #def1g, f0 is off
     if name == 'dfg':
         guess = np.array([2.13, 0.11, 0.41, 0.15, 1.25, 0.11]) #dfg
     if name == 'efg':
@@ -186,6 +198,6 @@ if __name__ == "__main__":
         bfpath = "bfs/bf_%s_box%d.txt"%(args['name'], i)
         mcmcpath = "chains/chain2_%s_box%d.txt"%(args['name'], i)
         likespath = "chains/likes2_%s_box%d.txt"%(args['name'], i)
-        #run_bf(args, bfpath)
+        run_bf(args, bfpath)
         plot_bf(i, args, bfpath)
         #run_mcmc(args, bfpath, mcmcpath, likespath)
