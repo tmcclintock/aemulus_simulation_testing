@@ -7,7 +7,7 @@ import numpy as np
 import scipy.optimize as op
 import emcee
 
-name = 'de1fg'
+name = 'special'
 if '0' in name or '1' in name:
     symmetric = False
 else:
@@ -17,8 +17,15 @@ zs = 1./sfs - 1.
 x = sfs - 0.5
 volume = 1050.**3 #(Mpc/h)^3
 
+R_special = np.loadtxt("chains/R_special.txt")
+
 def model_swap(params, name, xi):
     d, e, f, g = 1.97, 1.0, 0.51, 1.228
+    if name == 'special': #work in the rotated space
+        p2 = np.dot(R_special, params)
+        ints = p2[::2]
+        slopes = p2[1::2]
+        return ints + xi*slopes
     if symmetric:
         ints = params[::2]
         slopes = params[1::2]
@@ -53,6 +60,11 @@ def lnprior(params, args):
         pars = np.array(model_swap(params, args['name'], xi))
         if any(pars < 0) or any(pars > 5):
             return -np.inf
+        if args['name'] == 'special':
+            g0,g1 = params[-2:]
+            lpg0 = -0.5*(g0-0.815)**2/0.0156
+            lpg1 = -0.5*(g1-0.512)**2/0.00102
+            return lpg0+lpg1
     return 0
 
 def lnlike(params, args):
@@ -119,6 +131,8 @@ def get_args(i):
     return {'x':x, 'edges':edges, 'Ns':Ns, 'icovs':icovs, 'Omega_m':Omega_m, 'h':h, 'M':M, 'name':name, 'sigma2s':s2s, 'sigma2tops':s2ts, 'sigma2bots':s2bs}
     
 def run_bf(args, bfpath):
+    if name == 'special':
+        guess = np.array([0.339,1.058,2.468,-0.221,0.141,0.253,0.815,0.512]) #defg rotated
     if name =='defg':
         guess = np.array([2.287, 0.039, 1.11, 0.31, 0.44, 0.092, 1.27, 0.162]) #defg
     if name == 'de0fg':
