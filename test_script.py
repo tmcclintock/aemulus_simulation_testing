@@ -7,7 +7,7 @@ import numpy as np
 import scipy.optimize as op
 import emcee
 
-name = 'special'
+name = 'de1fg'
 if '0' in name or '1' in name:
     symmetric = False
 else:
@@ -108,7 +108,7 @@ def get_args(i):
     edges = []
     icovs = []
     cosmo, h, Omega_m = get_cosmo(i)
-    M = np.logspace(12, 16, num=200) #Msun/h
+    M = np.logspace(11.5, 16.5, num=200) #Msun/h
     Mt = M*(1-1e-6*0.5)
     Mb = M*(1+1e-6*0.5)
     k = np.logspace(-5, 1, num=1000) #Mpc^-1
@@ -117,12 +117,13 @@ def get_args(i):
     s2ts = [] #sigma^2 top part
     s2bs = [] #sigma^2 bottom part
     for j in range(0,10): #snap
-        Mlo, Mhi, N, Mtot = AD.building_box_binned_mass_function(i, j).T
+        Mlo, Mhi, N, Mave = AD.building_box_binned_mass_function(i, j).T
         edge = 10**np.concatenate((Mlo, Mhi[-1:]))
         cov = AD.building_box_binned_mass_function_covariance(i, j)
         Ns.append(N)
         edges.append(edge)
         icovs.append(np.linalg.inv(cov))
+        #icovs.append(np.linalg.inv(np.diag(cov.diagonal())))
         #Calculate each power spectrum at this redshift
         p = np.array([cosmo.pk_lin(ki, zs[j]) for ki in k])*h**3
         s2s.append(bias.sigma2_at_M(M, kh, p, Omega_m))
@@ -177,11 +178,11 @@ def plot_bf(i, args, bfpath):
     cosmo, h, Omega_m = get_cosmo(i)
     M = args['M']
     params = np.loadtxt(bfpath)
+    print i, params
     colors = [plt.get_cmap("seismic")(ci) for ci in np.linspace(1.0, 0.0, len(zs))]
     fig, ax = plt.subplots(2, sharex=True)
     for j in range(len(zs)):
-        Mlo, Mhi, N, Mtot = AD.building_box_binned_mass_function(i, j).T
-        Mave = Mtot/N #Average mass of halos in each bin
+        Mlo, Mhi, N, Mave = AD.building_box_binned_mass_function(i, j).T
         edge = 10**np.concatenate((Mlo, Mhi[-1:]))
         cov = AD.building_box_binned_mass_function_covariance(i, j)
         err = np.sqrt(cov.diagonal())
@@ -206,12 +207,12 @@ def plot_bf(i, args, bfpath):
     
 if __name__ == "__main__":
     lo = 0
-    hi = 1
+    hi = lo+1
     for i in xrange(lo, hi):
         args = get_args(i)
         bfpath = "bfs/bf_%s_box%d.txt"%(args['name'], i)
         mcmcpath = "chains/chain2_%s_box%d.txt"%(args['name'], i)
         likespath = "chains/likes2_%s_box%d.txt"%(args['name'], i)
         run_bf(args, bfpath)
-        plot_bf(i, args, bfpath)
+        #plot_bf(i, args, bfpath)
         #run_mcmc(args, bfpath, mcmcpath, likespath)
