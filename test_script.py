@@ -120,6 +120,8 @@ def get_args(i):
         Mlo, Mhi, N, Mave = AD.building_box_binned_mass_function(i, j).T
         edge = 10**np.concatenate((Mlo, Mhi[-1:]))
         cov = AD.building_box_binned_mass_function_covariance(i, j)
+        extra = np.diag((0.01*N)**2)
+        cov += extra
         Ns.append(N)
         edges.append(edge)
         icovs.append(np.linalg.inv(cov))
@@ -214,5 +216,5 @@ if __name__ == "__main__":
         mcmcpath = "chains/chain2_%s_box%d.txt"%(args['name'], i)
         likespath = "chains/likes2_%s_box%d.txt"%(args['name'], i)
         run_bf(args, bfpath)
-        #plot_bf(i, args, bfpath)
+        plot_bf(i, args, bfpath)
         #run_mcmc(args, bfpath, mcmcpath, likespath)
