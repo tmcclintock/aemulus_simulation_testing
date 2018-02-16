@@ -7,13 +7,13 @@ import matplotlib.pyplot as plt
 
 name = 'defg'
 
-sfs = AD.get_scale_factors()
+sfs = AD.scale_factors()
 zs = 1./sfs - 1.
 x = sfs - 0.5
 volume = 1050.**3 #(Mpc/h)^3
 
 def get_cosmo(i):
-    obh2, och2, w, ns, ln10As, H0, Neff, s8 = AD.get_building_box_cosmologies()[i]
+    obh2, och2, w, ns, ln10As, H0, Neff, s8 = AD.building_box_cosmologies()[i]
     h = H0/100.
     Omega_b = obh2/h**2
     Omega_c = och2/h**2
@@ -48,12 +48,12 @@ def get_box_resids(i):
     R = np.array([])
     Re = np.array([])
     for j in range(0,10): #snap
-        Mlo, Mhi, N, Mtot = AD.get_building_box_binned_mass_function(i, j).T
+        Mlo, Mhi, N, Mtot = AD.building_box_binned_mass_function(i, j).T
         Mj = Mtot/N
         Mb = np.concatenate((Mb, Mj))
         zb = np.concatenate((zb, np.ones_like(N)*zs[j]))
         edge = 10**np.concatenate((Mlo, Mhi[-1:]))
-        cov = AD.get_building_box_binned_mass_function_covariance(i, j)
+        cov = AD.building_box_binned_mass_function_covariance(i, j)
         icov = np.linalg.inv(cov)
         err = np.sqrt(np.diag(cov))
         p = np.array([cosmo.pk_lin(ki, zs[j]) for ki in k])*h**3

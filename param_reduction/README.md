@@ -1,0 +1,1 @@
+Here I am looking to see if I can reduce the dimensionality one parameter at a time. In the 4x2 tinker parameter case, e0 and f0 are almost certaintly the same parameter.

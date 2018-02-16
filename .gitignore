@@ -1,5 +1,13 @@
+#Various txt files
+diag_chains/*.png
+diag_chains/*.txt
+bfs/*.txt
+chains/special_chains
+chains/*.tgz
 chains/*.txt
 chains/*.png
+figures/*.png
+param_reduction/*.png
 *~
 
 # Byte-compiled / optimized / DLL files

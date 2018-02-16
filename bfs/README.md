@@ -1,0 +1,1 @@
+This has the best fits. All txt files are ignored on the repo.

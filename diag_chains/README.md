@@ -1,0 +1,1 @@
+Contains diagonalized chains. All txt files are ignored for the repo.
