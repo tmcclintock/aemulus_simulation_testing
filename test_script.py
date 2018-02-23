@@ -208,13 +208,13 @@ def plot_bf(i, args, bfpath):
     plt.show()
     
 if __name__ == "__main__":
-    lo = 0
+    lo = 34
     hi = lo+1
     for i in xrange(lo, hi):
         args = get_args(i)
         bfpath = "bfs/bf_%s_box%d.txt"%(args['name'], i)
         mcmcpath = "chains/chain2_%s_box%d.txt"%(args['name'], i)
         likespath = "chains/likes2_%s_box%d.txt"%(args['name'], i)
-        run_bf(args, bfpath)
+        #run_bf(args, bfpath)
         plot_bf(i, args, bfpath)
         #run_mcmc(args, bfpath, mcmcpath, likespath)
