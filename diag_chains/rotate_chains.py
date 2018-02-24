@@ -2,6 +2,7 @@
 Take some results, such as efg, and rotate the chains to break tight correlations.
 """
 import numpy as np
+import pandas as pd
 import corner, sys, os
 import matplotlib.pyplot as plt
 
@@ -21,7 +22,9 @@ nw = 48 #number of walkers
 nburn = 1000 #steps/walker to burn
 
 def make_Rs(i):
-    data = np.loadtxt(inbase%i)[nw*nburn:]
+    data = pd.read_csv(inbase%i, dtype='float64', delim_whitespace=True)
+    data = data.as_matrix()
+    data = data[nw*nburn:]
     D = np.copy(data)
     C = np.cov(D,rowvar=False)
     w,Ri = np.linalg.eig(C)
@@ -32,8 +35,11 @@ def make_Rs(i):
 #so use it for the final rotation matrix.
 def make_Rs_and_rotate(i, R_ind=34):
     R = np.loadtxt(Rout%R_ind)
-    #print "Using R at :\n\t%s"%(Rout%R_ind)
-    data = np.loadtxt(inbase%i)[nw*nburn:]
+    print "Using R at:\n\t%s"%(Rout%R_ind)
+    print "Reading chain from:\n\t%s"%(inbase%i)
+    data = pd.read_csv(inbase%i, dtype='float64', delim_whitespace=True)
+    data = data.as_matrix()
+    data = data[nw*nburn:]
     C = np.cov(data,rowvar=False)
     w,Ri = np.linalg.eig(C)
     rD = np.dot(data[:],R) #Rotated data
@@ -65,7 +71,8 @@ def make_means_and_vars(N, Np):
     mean_models = np.zeros((N, Np))
     var_models  = np.zeros((N, Np))
     for i in range(0, N):
-        data = np.loadtxt(chainout%i)
+        data = pd.read_csv(chainout%i, dtype='float64', delim_whitespace=True)
+        data = data.as_matrix()
         median_models[i] = np.median(data, 0)
         mean_models[i] = np.mean(data, 0)
         var_models[i] = np.var(data, 0)
@@ -73,6 +80,7 @@ def make_means_and_vars(N, Np):
     np.savetxt("r_%s_medians.txt"%name, median_models)
     np.savetxt("r_%s_means.txt"%name, mean_models)
     np.savetxt("r_%s_vars.txt"%name,  var_models)
+    print "Means saved at:\n\t%s"%("r_%s_means.txt"%name)
 
 def make_means_nonrot(N, Np):
     median_models = np.zeros((N, Np))
@@ -89,8 +97,8 @@ def make_means_nonrot(N, Np):
     np.savetxt("%s_vars.txt"%name,  var_models)
 
 def plot_means():
-    m = np.loadtxt("%s_means.txt"%name).T
-    v = np.loadtxt("%s_vars.txt"%name).T
+    m = np.loadtxt("r_%s_means.txt"%name).T
+    v = np.loadtxt("r_%s_vars.txt"%name).T
     er = np.sqrt(v)
     i = np.arange(len(m[0]))
     j = 0
@@ -104,8 +112,8 @@ def plot_means():
 if __name__ == "__main__":
     #make_Rs(34)
     #make_means_nonrot(40, Np)
-    #for i in xrange(34,35):#0,40):
+    #for i in xrange(38,40):
     #    make_Rs_and_rotate(i, R_ind=34)
-    #make_means_and_vars(40, Np)
-    plot_corners(34)
+    make_means_and_vars(40, Np)
+    #plot_corners(34)
     #plot_means()
