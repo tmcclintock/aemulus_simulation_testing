@@ -3,6 +3,7 @@ diag_chains/*.png
 diag_chains/*.txt
 bfs/*.txt
 chains/special_chains
+chains/one_percent_chains
 chains/*.tgz
 chains/*.txt
 chains/*.png

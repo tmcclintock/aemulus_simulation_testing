@@ -144,6 +144,8 @@ def run_bf(args, bfpath):
         guess = np.array([2.287, 0.039, 1.11, 0.31, 0.44, 1.27, 0.162]) #def0g, f1 is off
     if name =='de1fg':
         guess = np.array([2.287, 0.039, 0.31, 0.44, 0.092, 1.27, 0.162]) #de1fg, e0 is off
+        guess = np.array([ 1.18673127,  1.08884802,  1.51439594,  0.47219688, -0.20237368,
+        1.39252616,  0.73359442])
     if name =='def1g':
         guess = np.array([2.287, 0.039, 1.11, 0.31, 0.092, 1.27, 0.162]) #def1g, f0 is off
     if name == 'dfg':
@@ -176,10 +178,12 @@ def run_mcmc(args, bfpath, mcmcpath, likespath):
     likes = sampler.flatlnprobability
     np.savetxt(likespath, likes)
 
-def plot_bf(i, args, bfpath):
+def plot_bf(i, args, bfpath, domcmc=False, mcmcpath=None):
     cosmo, h, Omega_m = get_cosmo(i)
     M = args['M']
     params = np.loadtxt(bfpath)
+    if domcmc:
+        params = np.mean(np.loadtxt(mcmcpath), 0)
     print i, params
     colors = [plt.get_cmap("seismic")(ci) for ci in np.linspace(1.0, 0.0, len(zs))]
     fig, ax = plt.subplots(2, sharex=True)
@@ -208,13 +212,14 @@ def plot_bf(i, args, bfpath):
     plt.show()
     
 if __name__ == "__main__":
-    lo = 34
+    lo = 23
     hi = lo+1
     for i in xrange(lo, hi):
         args = get_args(i)
         bfpath = "bfs/bf_%s_box%d.txt"%(args['name'], i)
-        mcmcpath = "chains/chain2_%s_box%d.txt"%(args['name'], i)
-        likespath = "chains/likes2_%s_box%d.txt"%(args['name'], i)
-        #run_bf(args, bfpath)
+        mcmcpath = "chains/one_percent_chains/chain2_%s_box%d.txt"%(args['name'], i)
+        likespath = "chains/one_percent_chains/likes2_%s_box%d.txt"%(args['name'], i)
+        run_bf(args, bfpath)
         plot_bf(i, args, bfpath)
         #run_mcmc(args, bfpath, mcmcpath, likespath)
+        plot_bf(i, args, bfpath, True, mcmcpath)
