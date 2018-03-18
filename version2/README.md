@@ -1,0 +1,1 @@
+Another version that loops over models properly.

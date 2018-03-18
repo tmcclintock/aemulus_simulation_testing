@@ -16,7 +16,7 @@ use1p = True
 #Just use Box016 to find the rotations
 base_dir = "../chains/"
 if use1p:
-    base_dir+="one_percent_chains/"
+    base_dir+="half_percent_chains/"
 inbase = base_dir+"/chain2_"+name+"_box%d.txt"
 base_save = "./"
 chainout = base_save+"/rotated_"+name+"_box%d_chain.txt"
@@ -84,7 +84,7 @@ def make_means_and_vars(N, Np, name):
         print "Means calculated for %d"%i
     p1= ""
     if use1p:
-        p1 = "1p"
+        p1 = "hp"
     np.savetxt(p1+"r_%s_medians.txt"%name, median_models)
     np.savetxt(p1+"r_%s_means.txt"%name, mean_models)
     np.savetxt(p1+"r_%s_vars.txt"%name,  var_models)
@@ -102,7 +102,7 @@ def make_means_nonrot(N, Np, name):
         var_models[i] = np.var(data, 0)
         print "Means calculated for %d"%i
     if use1p:
-        name = "1p"+name
+        name = "hp"+name
     np.savetxt("%s_medians.txt"%name, median_models)
     np.savetxt("%s_means.txt"%name, mean_models)
     np.savetxt("%s_vars.txt"%name,  var_models)
@@ -135,9 +135,9 @@ def make_real_corner(i):
 
     
 if __name__ == "__main__":
-    #make_rotation_matrix(34)
+    make_rotation_matrix(34)
     #make_means_nonrot(40, Np, name)
-    for i in xrange(23,24):
+    for i in xrange(0,40):
         make_Rs_and_rotate(i, R_ind=34)
     make_means_and_vars(40, Np, name)
     #plot_corners(23)
