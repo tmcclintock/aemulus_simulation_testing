@@ -22,13 +22,6 @@ def model_swap(params, args, xi):
     if len(kept) != 8:
         defaults = args['defaults']
         pars[dropped] = defaults[dropped]
-    #j = 0
-    #for i in range(8):
-    #    if i in dropped:
-    #        pars[i] = defaults[i]
-    #    else:
-    #        pars[i] = params[j]
-    #        j+=1
     d,e,f,g = pars[:4] + xi*pars[4:]
     return d, e, f, g
     
@@ -193,8 +186,8 @@ if __name__ == "__main__":
             if npars == 6:
                 if model_index not in [3, 4, 5, 10, 15]:
                     continue
-            lo = 10
-            hi = lo+1
+            lo = 0#10
+            hi = 40#lo+1
             ll = 0 #log likelihood
             for box in xrange(lo, hi):
                 kept = np.delete(inds, combo)
@@ -209,7 +202,7 @@ if __name__ == "__main__":
                 mcmcpath = "chains/chain_%s_box%d.txt"%(args['name'], box)
                 likespath = "chains/likes_%s_box%d.txt"%(args['name'], box)
                 ll += run_bf(args, doprint=False)
-                plot_bf(box, args, bfpath, "figs/bf_%s_box%d.png"%(args['name'],box))
-                #run_mcmc(args, bfpath, mcmcpath, likespath)
+                #plot_bf(box, args, bfpath, "figs/bf_%s_box%d.png"%(args['name'],box))
+                run_mcmc(args, bfpath, mcmcpath, likespath)
             print "Np%d Mi%d:\tlnlike = %e"%(npars, model_index, ll)
 
