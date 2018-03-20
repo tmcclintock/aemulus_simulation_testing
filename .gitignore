@@ -1,4 +1,5 @@
 #Various txt files
+version2/**/*.npy
 version2/**/*.txt
 version2/**/*.png
 diag_chains/*.png
