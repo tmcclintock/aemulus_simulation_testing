@@ -57,10 +57,27 @@ def make_corner(npars, mi, i):
     plt.gcf().savefig("corner_rot_np%d_mi%d_box%d.png"%(npars,mi,i))
     plt.clf()
 
+def make_real_corner(npars, mi, i):
+    R = np.loadtxt(Rpath%(npars,mi))
+    data = pd.read_csv(inpath%(npars,mi,i), dtype='float64', delim_whitespace=True)
+    data = data.as_matrix()
+    data = data[nw*nburn:]
+    rD = np.dot(data[:],R) #rotated
+    from chainconsumer import ChainConsumer
+    labs=[r"$d_1'$",r"$e_0'$", r"$e_1'$",r"$f_0'$",r"$g_0'$",r"$g_1'$"]
+    labs=[r"$e_0'$",r"$f_0'$",r"$g_0'$",r"$d_1'$", r"$e_1'$", r"$g_1'$"]
+    c = ChainConsumer()
+    c.add_chain(rD, parameters=labs)
+    c.configure(kde=True, tick_font_size=10, label_font_size=24, max_ticks=3, sigmas=[0,1,2,3], usetex=True)#, statistics='max_symmetric')
+    fig = c.plotter.plot()#legend=True)
+    plt.subplots_adjust(hspace=0, wspace=0)
+    plt.savefig("fig_Rcorner.pdf", bbox_inches='tight')
+    plt.show()
     
 if __name__ == "__main__":
-    npars = 7
+    npars = 6
     mi = 5
-    make_rotation_matrix(npars, mi, 34)
-    rotate_all_chains(npars, mi)
-    make_corner(npars, mi, 0)
+    #make_rotation_matrix(npars, mi, 34)
+    #rotate_all_chains(npars, mi)
+    #make_corner(npars, mi, 0)
+    make_real_corner(npars, mi, 0)

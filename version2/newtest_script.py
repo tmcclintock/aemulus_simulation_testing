@@ -187,10 +187,13 @@ if __name__ == "__main__":
             if npars == 6:
                 if model_index not in [3, 4, 5, 10, 15]:
                     continue
-            lo = 1#10
+            lo = 31#10
             hi = lo+1
             ll = 0 #log likelihood
-            if npars != 7 and model_index != 5:
+            #Npars = 6, model_index=5 is the best version so far
+            if npars != 6:
+                continue
+            if model_index != 5:
                 continue
             for box in xrange(lo, hi):
                 kept = np.delete(inds, combo)
@@ -205,7 +208,7 @@ if __name__ == "__main__":
                 mcmcpath = "chains/chain_%s_box%d.txt"%(args['name'], box)
                 likespath = "chains/likes_%s_box%d.txt"%(args['name'], box)
                 ll += run_bf(args, doprint=False)
-                #plot_bf(box, args, bfpath, "figs/bf_%s_box%d.png"%(args['name'],box))
+                #plot_bf(box, args, bfpath)#, "figs/bf_%s_box%d.png"%(args['name'],box))
                 #run_mcmc(args, bfpath, mcmcpath, likespath)
             print "Np%d Mi%d:\tlnlike = %e"%(npars, model_index, ll)
 
