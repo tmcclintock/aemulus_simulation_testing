@@ -78,6 +78,6 @@ if __name__ == "__main__":
     npars = 6
     mi = 5
     #make_rotation_matrix(npars, mi, 34)
-    #rotate_all_chains(npars, mi)
+    rotate_all_chains(npars, mi)
     #make_corner(npars, mi, 0)
     make_real_corner(npars, mi, 0)

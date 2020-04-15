@@ -21,7 +21,7 @@ def model_swap(params, args, xi):
     pars[kept] = params
     if len(kept) != 8:
         defaults = args['defaults']
-        print "default: ",dropped, defaults[dropped]
+        #print "default: ",dropped, defaults[dropped]
         pars[dropped] = defaults[dropped]
     d,e,f,g = pars[:4] + xi*pars[4:]
     return d, e, f, g
@@ -124,7 +124,7 @@ def run_mcmc(args, bfpath, mcmcpath, likespath):
     bf = np.loadtxt(bfpath)
     ndim = len(bf)
     nwalkers = 48
-    nsteps = 2000
+    nsteps = 10000
     pos = [bf + 1e-3*np.random.randn(ndim) for k in range(nwalkers)]
     sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, args=(args,), threads=4)
     print "Running MCMC for model:\n\t%s"%(args['name'])
@@ -187,14 +187,15 @@ if __name__ == "__main__":
             if npars == 6:
                 if model_index not in [3, 4, 5, 10, 15]:
                     continue
-            lo = 31#10
-            hi = lo+1
-            ll = 0 #log likelihood
             #Npars = 6, model_index=5 is the best version so far
             if npars != 6:
                 continue
             if model_index != 5:
                 continue
+
+            lo = 0
+            hi = lo+1
+            ll = 0 #log likelihood
             for box in xrange(lo, hi):
                 kept = np.delete(inds, combo)
                 #print kept, combo, npars, model_index
@@ -209,6 +210,6 @@ if __name__ == "__main__":
                 likespath = "chains/likes_%s_box%d.txt"%(args['name'], box)
                 ll += run_bf(args, doprint=False)
                 #plot_bf(box, args, bfpath)#, "figs/bf_%s_box%d.png"%(args['name'],box))
-                #run_mcmc(args, bfpath, mcmcpath, likespath)
+                run_mcmc(args, bfpath, mcmcpath, likespath)
             print "Np%d Mi%d:\tlnlike = %e"%(npars, model_index, ll)
 
